@@ -1,17 +1,19 @@
 import { useRef, useState } from "react";
+import useStore from "../store";
 
 const TodoList = ({ todos, setTodos }) => {
   const editRef = useRef(null);
   const [todoEditing, setTodoEditing] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const user = useStore(s => s.user)
 
   const deleteTodo = (id) => {
-    const updatedTodos = [...todos].filter((todo) => todo.id !== id);
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
     setTodos(updatedTodos);
   };
 
   const toggleComplete = (id) => {
-    const updatedTodos = [...todos].map((todo) => {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         todo.completed = !todo.completed;
       }
@@ -21,7 +23,7 @@ const TodoList = ({ todos, setTodos }) => {
   };
 
   const editTodo = (id) => {
-    const updatedTodos = [...todos].map((todo) => {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         todo.text = editingText;
       }

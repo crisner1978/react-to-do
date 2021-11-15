@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useMutation } from "react-query";
-import { loginUser } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../firebase";
 
 const Login = () => {
   let navigate = useNavigate();

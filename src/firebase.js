@@ -1,11 +1,23 @@
 import { initializeApp } from "firebase/app";
 import {
-  createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-  signOut
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import {
-  addDoc, collection, deleteDoc, doc, getDoc,
-  getDocs, getFirestore, query, serverTimestamp, setDoc, where
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
 } from "firebase/firestore";
 import { useEffect } from "react";
 import shallow from "zustand/shallow";
@@ -114,5 +126,3 @@ export async function getTodosByUsername(username) {
 export const handleDelete = async (id) => {
   await deleteDoc(doc(db, "todos", id));
 };
-
-

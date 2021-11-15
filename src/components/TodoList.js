@@ -43,8 +43,6 @@ const TodoList = () => {
     // updatedTodos;
   };
 
-
-
   return (
     <div>
       {todos.map((todo) => (

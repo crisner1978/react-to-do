@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
-import { checkIfUsernameTaken, signupUser } from "../firebase";
-import { useMutation } from "react-query";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom"
+import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
+import { checkIfUsernameTaken, signupUser } from "../firebase";
 
 const Signup = () => {
   let navigate = useNavigate();
@@ -15,8 +15,8 @@ const Signup = () => {
 
   const mutation = useMutation(signupUser, {
     onSuccess: () => {
-      navigate('../login', {replace: true})
-      toast.success("Sign up successful")
+      navigate("/feed", { replace: true });
+      toast.success("Sign up successful");
     },
     onError: (error) => {
       toast.error(error.message);

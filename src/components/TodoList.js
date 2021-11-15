@@ -1,38 +1,49 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import LoadingBar from "react-top-loading-bar";
+import { getTodosByUsername, handleDelete } from "../firebase";
 import useStore from "../store";
 
-const TodoList = ({ todos, setTodos }) => {
-  const editRef = useRef(null);
-  const [todoEditing, setTodoEditing] = useState(null);
-  const [editingText, setEditingText] = useState("");
-  const user = useStore(s => s.user)
+const TodoList = () => {
+  const [progress, setProgress] = useState(100);
+  const user = useStore((s) => s.user);
+  let username = user.username;
 
-  const deleteTodo = (id) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-  };
+  const { data: todos, isLoading } = useQuery(["todos", username], () => {
+    return getTodosByUsername(username);
+  });
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation(handleDelete, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["todos", username]);
+      toast.success("Todo deleted");
+    },
+  });
+
+  if (isLoading)
+    return (
+      <LoadingBar
+        color="#0055b3"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
+    );
+  if (!todos || !todos.length) return null;
 
   const toggleComplete = (id) => {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.completed = !todo.completed;
-      }
-      return todo;
-    });
-    setTodos(updatedTodos);
+    // const updatedTodos = todos.map((todo) => {
+    //   if (todo.id === id) {
+    //     todo.completed = !todo.completed;
+    //   }
+    //   return todo;
+    // });
+    // updatedTodos;
   };
 
-  const editTodo = (id) => {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.text = editingText;
-      }
-      return todo;
-    });
-    setTodos(updatedTodos);
-    setTodoEditing(null);
-    setEditingText("");
-  };
+
 
   return (
     <div>
@@ -40,49 +51,25 @@ const TodoList = ({ todos, setTodos }) => {
         <div
           className="flex items-center p-4 space-x-4 hover:bg-gray-100 hover:scale-105 transition transform duration-200 ease-out"
           key={todo.id}>
-          {todoEditing === todo.id ? (
-            <input
-              ref={editRef}
-              className="flex-1 border-none focus:ring-0 outline-none text-gray-600 font-semibold"
-              type="text"
-              value={editingText}
-              placeholder={todo.text}
-              onChange={(e) => setEditingText(e.target.value)}
-            />
-          ) : (
-            <div
-              ref={editRef}
-              onClick={() => setTodoEditing(todo.id)}
-              className="flex-1 shadow-md cursor-pointer">
-              <h1
-                className={`font-semibold text-gray-600 mb-1 ${
-                  todo.completed && "line-through"
-                }`}>
-                {todo.text}
-              </h1>
-            </div>
-          )}
+          <div className="flex-1 shadow-md cursor-pointer">
+            <h1
+              className={`font-semibold text-gray-600 mb-1 {${todo.completed} && "line-through"}`}>
+              {todo.todo}
+            </h1>
+          </div>
+
           <input
             type="checkbox"
             checked={todo.completed}
             onChange={() => toggleComplete(todo.id)}
           />
 
-          {todoEditing === todo.id ? (
-            <button
-              type="submit"
-              className="text-gray-600 font-semibold"
-              onClick={() => editTodo(todo.id)}>
-              Confirm
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="text-red-300 font-semibold hover:text-red-500"
-              onClick={() => deleteTodo(todo.id)}>
-              Delete
-            </button>
-          )}
+          <button
+            type="button"
+            className="text-red-300 font-semibold hover:text-red-500"
+            onClick={() => mutation.mutate(todo.id)}>
+            Delete
+          </button>
         </div>
       ))}
     </div>

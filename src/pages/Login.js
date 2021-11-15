@@ -2,10 +2,10 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 import { loginUser } from "../firebase";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  let navigate = useNavigate()
+  let navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -14,10 +14,21 @@ const Login = () => {
 
   const mutation = useMutation(loginUser, {
     onSuccess: () => {
-      navigate("/feed", {replace: true})
-      toast.success("Log in successful")
+      navigate("/feed", { replace: true });
+      toast.success("Log in successful");
     },
     onError: (error) => {
+      let message = error?.code;
+      switch (message) {
+        case "auth/wrong-password":
+          message = "Password is incorrect";
+          break;
+        case "auth/user-not-found":
+          message = "User does not exist";
+          break;
+        default:
+          break;
+      }
       toast.error(error.message);
     },
   });
@@ -84,7 +95,7 @@ const Login = () => {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="text-gray-800 font-black transition-all transform duration-300 ease-out hover:bg-blue-700 hover:text-white px-16 py-2 rounded-xl">
+              className="text-gray-800 font-black transition-all transform duration-300 ease-out hover:bg-blue-700 hover:text-white px-24 py-2 rounded-xl">
               LOG IN
             </button>
           </div>

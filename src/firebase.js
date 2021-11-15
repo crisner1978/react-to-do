@@ -1,37 +1,30 @@
-import {
-  getFirestore,
-  setDoc,
-  doc,
-  collection,
-  query,
-  getDoc,
-  getDocs,
-  where,
-} from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
+  createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+  signOut
 } from "firebase/auth";
-import useStore from "./store";
-import shallow from "zustand/shallow";
+import {
+  addDoc, collection, deleteDoc, doc, getDoc,
+  getDocs, getFirestore, query, serverTimestamp, setDoc, where
+} from "firebase/firestore";
 import { useEffect } from "react";
+import shallow from "zustand/shallow";
+import useStore from "./store";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB66j-2yYzA4s3r7Y6kpM0evyh7Ks-IV4g",
-  authDomain: "todo-crise.firebaseapp.com",
-  projectId: "todo-crise",
-  storageBucket: "todo-crise.appspot.com",
-  messagingSenderId: "958770536970",
-  appId: "1:958770536970:web:127ffdd977e10f6df935f3",
+  apiKey: "AIzaSyCdGbmbhBrjGxvZ3cM1hknXFpGlKM3UK_Q",
+  authDomain: "todolist-rise.firebaseapp.com",
+  projectId: "todolist-rise",
+  storageBucket: "todolist-rise.appspot.com",
+  messagingSenderId: "707633360414",
+  appId: "1:707633360414:web:f1a8e926eebbf99dd9c80f",
+  measurementId: "G-5YFZ61GQEZ",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+export const getTimestamp = serverTimestamp;
 
 export async function signupUser({ email, password, username }) {
   const userCreds = await createUserWithEmailAndPassword(auth, email, password);
@@ -92,3 +85,34 @@ export async function loginUser({ email, password }) {
 export async function logoutUser() {
   return await signOut(auth);
 }
+
+export async function createTodo(todo) {
+  const todoCol = collection(db, "todos");
+  const { id } = await addDoc(todoCol, todo);
+  const todoDoc = doc(db, "todos", id);
+  const newTodo = await getDoc(todoDoc);
+  return { id, ...newTodo.data() };
+}
+
+export async function getDocuments(ref) {
+  const snap = await getDocs(ref);
+  const docs = snap.docs.map((doc) => ({
+    id: doc.id,
+    reference: doc.ref,
+    ...doc.data(),
+  }));
+  return docs;
+}
+
+export async function getTodosByUsername(username) {
+  const col = collection(db, "todos");
+  const q = query(col, where("user.username", "==", username));
+  const todos = await getDocuments(q);
+  return todos;
+}
+
+export const handleDelete = async (id) => {
+  await deleteDoc(doc(db, "todos", id));
+};
+
+
